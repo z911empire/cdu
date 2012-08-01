@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 include_once "config_helper.php";
-readConfigs("application.config");
+$userconfig=readConfigs("application.config");
 
 /*
 |--------------------------------------------------------------------------
@@ -17,7 +17,7 @@ readConfigs("application.config");
 | path to your installation.
 |
 */
-$config['base_url']	= getConfig('config_base_url');
+$config['base_url']	= $userconfig['config_base_url'];
 
 /*
 |--------------------------------------------------------------------------

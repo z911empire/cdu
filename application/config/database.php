@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 include_once "config_helper.php";
-readConfigs("application.config");
+$userconfig=readConfigs("application.config");
 
 /*
 | -------------------------------------------------------------------
@@ -52,10 +52,10 @@ readConfigs("application.config");
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = getConfig('db_default_hostname');
-$db['default']['username'] = getConfig('db_default_username');
-$db['default']['password'] = getConfig('db_default_password');
-$db['default']['database'] = getConfig('db_default_database');
+$db['default']['hostname'] = $userconfig['db_default_hostname'];
+$db['default']['username'] = $userconfig['db_default_username'];
+$db['default']['password'] = $userconfig['db_default_password'];
+$db['default']['database'] = $userconfig['db_default_database'];
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
