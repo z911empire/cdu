@@ -4,7 +4,7 @@
 		$fh = fopen($config_filename, 'r', 1);
 		if (!$fh) { error_log("Error opening config file $config_filename.",0); return; } 
 		while (!feof($fh)) {
-			$keyval=explode('=',fgets($fh));
+			$keyval=explode('=',trim(fgets($fh)));
 			$configs[$keyval[0]]=$keyval[1];
 		}
 		fclose($fh);

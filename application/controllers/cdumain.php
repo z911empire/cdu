@@ -18,6 +18,17 @@ class Cdumain extends CI_Controller {
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
 	public function index() {
+		$this->load->helper(array('form'));
+		$this->load->library('form_validation');
+		
+		$this->form_validation->set_rules('dbhost','DB Server Host','required');
+		$this->form_validation->set_rules('dbport','DB Server Port','required');
+		$this->form_validation->set_rules('dbuser','DB Username','required');
+		$this->form_validation->set_rules('dbpass','DB Password','required');
+		
+		# want to do this with AJAX off the bat:
+		# http://jeremiahgatong.blogspot.com/2012/04/codeigniters-form-validation-w-jquery.html
+		
 		$this->load->view('header');
 		$this->load->view('cduapp');
 		$this->load->view('footer');
