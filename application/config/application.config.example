@@ -1,0 +1,5 @@
+config_base_url=baseurl
+db_default_hostname=hostname
+db_default_username=username
+db_default_password=password
+db_default_database=database
