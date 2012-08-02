@@ -2,35 +2,48 @@
 
 class Cdumain extends CI_Controller {
 
-	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/cdumain
-	 *	- or -  
-	 * 		http://example.com/index.php/cdumain/index
-	 *	- or -
-	 * Since this controller is set as the default controller in 
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/cdumain/<method_name>
-	 * @see http://codeigniter.com/user_guide/general/urls.html
-	 */
-	public function index() {
+	public function __construct() { 
+		parent::__construct();
 		$this->load->helper(array('form'));
 		$this->load->library('form_validation');
-		
-		$this->form_validation->set_rules('dbhost','DB Server Host','required');
-		$this->form_validation->set_rules('dbport','DB Server Port','required');
-		$this->form_validation->set_rules('dbuser','DB Username','required');
-		$this->form_validation->set_rules('dbpass','DB Password','required');
-		
+	}
+
+	public function index() {
 		# want to do this with AJAX off the bat:
 		# http://jeremiahgatong.blogspot.com/2012/04/codeigniters-form-validation-w-jquery.html
-		
 		$this->load->view('header');
 		$this->load->view('cduapp');
 		$this->load->view('footer');
 	}
+	
+	public function attemptDBConnection() {
+		$this->form_validation->set_rules('dbhost','DB Host','required');
+		$this->form_validation->set_rules('dbport','DB Port','required|numeric');
+		$this->form_validation->set_rules('dbuser','DB Username','required');
+		$this->form_validation->set_rules('dbpass','DB Password','required');	
+
+		if ($this->form_validation->run() == FALSE) {
+			# http://darrenonthe.net/2011/05/10/get-codeigniter-form-validation-errors-as-an-array/
+			echo json_encode($this->form_validation->getErrorArray());
+		} else {
+			# what about the port!?
+			# use the '@' to suppress error messages from the function 
+			$userdbserver = @mysql_connect($this->input->post('dbhost'), 
+				$this->input->post('dbuser'), $this->input->post('dbpass'));			
+			if (!$userdbserver) {
+				#error_log("Couldn't connect to db server: ".mysql_error(),0);
+				echo json_encode(array('nonValidationError'=>'Could not establish connection with DB.'));
+			} else {
+				echo json_encode(array('nextControl'=>'populateSelectDB',
+									   'nextSection'=>'specify',
+									   'resubmit'=>'attemptDBConnection'));
+			}
+		}
+	}
+	
+	public function populateSelectDB() {
+		echo "GREAT SUCCESS!";
+	}
 }
+
+?>

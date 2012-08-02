@@ -11,6 +11,7 @@
 		
 		<!-- JQuery JS -->
 		<script src="<?php echo base_url("assets/js/jquery-1.7.2.min.js"); ?>"></script>
-		<script src="<?php echo base_url("assets/js/jquery-ui-1.8.22.custom.min.js"); ?>"></script>
+		<script src="<?php echo base_url("assets/js/jquery-ui-1.8.22.custom.min.js"); ?>"></script>		
+		<script src="<?php echo base_url("assets/js/cdu.js"); ?>"></script>
 	</head>
 <body>
