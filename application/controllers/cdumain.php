@@ -45,7 +45,7 @@ class Cdumain extends CI_Controller {
 		}
 	}
 	
-	public function populateSelectDB() {
+	private function _connectUserDB() {
 		$dbhost = ($this->input->post('dbport')) ? $this->input->post('dbhost').":".$this->input->post('dbport')	: $this->input->post('dbhost');
 		$dbuser = $this->input->post('dbuser');
 		$dbpass = $this->input->post('dbpass');
@@ -65,7 +65,12 @@ class Cdumain extends CI_Controller {
 		
 		$uDB = $this->load->database($dbConfig, TRUE);
 		
-		if (!$uDB) { error_log("Could not connect to valid database.",0); }
+		if (!$uDB) { error_log("Could not connect to valid database.",0); }	
+		else { return $uDB; }
+	}
+	
+	public function populateSelectDB() {
+		$uDB = $this->_connectUserDB();
 		
 		$query = $uDB->query('SELECT DISTINCT TABLE_SCHEMA FROM TABLES;');
 
@@ -74,30 +79,11 @@ class Cdumain extends CI_Controller {
 		   	array_push($response, $row['TABLE_SCHEMA']);
 		}
 		echo json_encode($response);
-		if (!$uDB->close()) { error_log("Could not close DB connection!",0); }
+		#if (!$uDB->close()) { error_log("Could not close DB connection dbselect!",0); }
 	}
 	
 	public function populateSelectTable() {
-		$dbhost = ($this->input->post('dbport')) ? $this->input->post('dbhost').":".$this->input->post('dbport')	: $this->input->post('dbhost');
-		$dbuser = $this->input->post('dbuser');
-		$dbpass = $this->input->post('dbpass');
-		
-		$dbConfig['hostname'] = $dbhost;
-		$dbConfig['username'] = $dbuser;
-		$dbConfig['password'] = $dbpass;
-		$dbConfig['database'] = "information_schema";
-		$dbConfig['dbdriver'] = "mysql";
-		$dbConfig['dbprefix'] = "";
-		$dbConfig['pconnect'] = FALSE;
-		$dbConfig['db_debug'] = TRUE;
-		$dbConfig['cache_on'] = FALSE;
-		$dbConfig['cachedir'] = "";
-		$dbConfig['char_set'] = "utf8";
-		$dbConfig['dbcollat'] = "utf8_general_ci";
-		
-		$uDB = $this->load->database($dbConfig, TRUE);
-		
-		if (!$uDB) { error_log("Could not connect to valid database.",0); }
+		$uDB = $this->_connectUserDB();
 		
 		$query = $uDB->query("SELECT TABLE_NAME FROM TABLES WHERE TABLE_SCHEMA='".$this->input->post('dbselect')."' ORDER BY TABLE_NAME;");
 
@@ -106,30 +92,11 @@ class Cdumain extends CI_Controller {
 		   	array_push($response, $row['TABLE_NAME']);
 		}
 		echo json_encode($response);
-		if (!$uDB->close()) { error_log("Could not close DB connection!",0); }
+		#if (!$uDB->close()) { error_log("Could not close DB connection tableselect!",0); }
 	}
 	
 	public function populateSelectColumn() {
-		$dbhost = ($this->input->post('dbport')) ? $this->input->post('dbhost').":".$this->input->post('dbport')	: $this->input->post('dbhost');
-		$dbuser = $this->input->post('dbuser');
-		$dbpass = $this->input->post('dbpass');
-		
-		$dbConfig['hostname'] = $dbhost;
-		$dbConfig['username'] = $dbuser;
-		$dbConfig['password'] = $dbpass;
-		$dbConfig['database'] = "information_schema";
-		$dbConfig['dbdriver'] = "mysql";
-		$dbConfig['dbprefix'] = "";
-		$dbConfig['pconnect'] = FALSE;
-		$dbConfig['db_debug'] = TRUE;
-		$dbConfig['cache_on'] = FALSE;
-		$dbConfig['cachedir'] = "";
-		$dbConfig['char_set'] = "utf8";
-		$dbConfig['dbcollat'] = "utf8_general_ci";
-		
-		$uDB = $this->load->database($dbConfig, TRUE);
-		
-		if (!$uDB) { error_log("Could not connect to valid database.",0); }
+		$uDB = $this->_connectUserDB();
 		
 		$query = $uDB->query("SELECT COLUMN_NAME, CASE COLUMN_KEY WHEN 'PRI' THEN 1 WHEN 'UNI' THEN 2 ELSE 3 END AS colkey FROM COLUMNS WHERE TABLE_SCHEMA='".$this->input->post('dbselect')."' AND TABLE_NAME='".$this->input->post('tableselect')."' ORDER BY colkey, COLUMN_NAME;");
 		$response=array();
@@ -137,7 +104,7 @@ class Cdumain extends CI_Controller {
 		   	array_push($response, array("name"=>$row['COLUMN_NAME'],"key"=>$row['colkey']));
 		}
 		echo json_encode($response);
-		if (!$uDB->close()) { error_log("Could not close DB connection!",0); }
+		#if (!$uDB->close()) { error_log("Could not close DB connection columnselect!",0); }
 	}
 }
 
