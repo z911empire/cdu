@@ -7,6 +7,7 @@ function prepareFormSubmits() {
 	// button clicks are programatically captured as form submits...apparently
 	$('button.btn-primary').click(function(){
 		var curform=$(this).closest('form');
+		//alert(''+$(curform).attr('name')+' submitted');
 		$.post($(curform).attr('action'), $(curform).serialize(), function(r) {
 			// ensuring idempotence
 			$('.help-inline').remove();
@@ -21,11 +22,11 @@ function prepareFormSubmits() {
 						.parent().parent().addClass('error');
 				});
 				if (r.nonValidationError) {
-					$('button',$(curform)).removeClass('btn-primary').addClass('btn-danger').text('Connection Failed, Adjust Values and Try Again');
+					$('button',$(curform)).removeClass('btn-primary btn-success').addClass('btn-danger').text('Connection Failed, Adjust Values and Try Again');
 				}
 			}
 			// display successes
-			$('.control-group').not('.error').each(function() {
+			$('.control-group', $(curform)).not('.error').each(function() {
 				$(this).addClass('success');
 				$(this).find(':input')
 					.after("<span class='help-inline'><strong>VALID</strong></span>");
@@ -33,7 +34,7 @@ function prepareFormSubmits() {
 			
 			// fire next Controller
 			if (r.nextControl) {
-				//$('button',$(curform)).removeClass('btn-primary btn-danger').addClass('btn-success');	
+				$('button',$(curform)).removeClass('btn-primary btn-danger').addClass('btn-success');	
 				fireNextController(r.nextControl, r.nextSection, r.resubmit);
 			}
 		}, "json");
@@ -45,8 +46,8 @@ function prepareFormSubmits() {
 
 function fireNextController(nextControl, nextSection, resubmit) {
 	// display the next Section
-	$('section').addClass('hidden');
-	$('#'+nextSection+'').removeClass('hidden');
+	// $('section').addClass('hidden');
+	// $('#'+nextSection+'').removeClass('hidden');
 	// call function defined here by name from controller
 	var ncfn = window[nextControl]; // ncfn = nextControlFunctioN
 	if (typeof ncfn === 'function') {
@@ -59,9 +60,50 @@ function fireNextController(nextControl, nextSection, resubmit) {
 function populateSelectDB(option) {
 	var prevform	=	$('form[name="attemptDBConnection"]');
 	var curform		=	$('form[name="populateSelectDB"]');
+	var nextform	= 	$('form[name="specifyCDU"]');
 	$.post($(curform).attr('action'), $(prevform).serialize(), function(r) {
-		alert(r);
-	}, "text");
+		var dbselect = $('select[name="dbselect"]', $(nextform));
+		$(dbselect).empty();
+		$.each(r, function(i,db) {
+			$(dbselect).append('<option>'+db+'</option>');
+		});
+		activateDatabaseOptions($(dbselect));
+	}, "json");
+}
+
+function activateDatabaseOptions(select) {
+	var prevform	=	$('form[name="attemptDBConnection"]');
+	var curform		= 	$('form[name="specifyCDU"]');
+	var nextform	= 	$('form[name="populateSelectTable"]');
+	$(select).unbind('change').change(function() {
+		var database = $(this).val();
+		$.post($(nextform).attr('action'), ''+$(prevform).serialize()+'&dbselect='+database+'', function(r) {
+			var tableselect = $('select[name="tableselect"]', $(curform));
+			$(tableselect).empty();
+			$.each(r, function(i,table) {
+				$(tableselect).append('<option>'+table+'</option>');
+			});
+			activateTableOptions($(tableselect));			
+		}, "json");
+	});
+}
+
+function activateTableOptions(select) {
+	var prevform	=	$('form[name="attemptDBConnection"]');
+	var curform		= 	$('form[name="specifyCDU"]');
+	var nextform	= 	$('form[name="populateSelectColumn"]');
+	$(select).unbind('change').change(function() {
+		var database 	= $('select[name="dbselect"]',$(curform)).val();
+		var table 		= $(this).val();
+		
+		$.post($(nextform).attr('action'), ''+$(prevform).serialize()+'&dbselect='+database+'&tableselect='+table+'', function(r) {
+			var columnselect = $('select[name="columnselect"]', $(curform));
+			$(columnselect).empty();
+			$.each(r, function(i,column) {
+				$(columnselect).append('<option>'+column.name+'</option>');
+			});			
+		}, "json");
+	});
 }
 
 /* -------------------------- utility functions -------------------------- */
